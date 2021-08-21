@@ -8,10 +8,10 @@ using namespace nlohmann;
 int main(void) {
   httplib::Server svr;
   svr.Get("/", [](const auto &, auto &res) {
-    string head = "default"; //TODO: Change head
-    string tail = "default"; //TODO: Change tail
-    string author = ""; //TODO: Change your battlesnake username
-    string color = "#888888";  //TODO: Change a hex color
+    string head = "bendr";
+    string tail = "mouse";
+    string author = "Connor-Morrison";
+    string color = "#a676c2";
     res.set_content("{\"apiversion\":\"1\", \"head\":\"" + head + "\", \"tail\":\"" + tail + "\", \"color\":\"" + color + "\", " + "\"author\":\"" + author + "\"}", "application/json");
   });
   svr.Post("/end", [](const auto &, auto &res){
