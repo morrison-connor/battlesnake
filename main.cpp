@@ -5,6 +5,12 @@
 #include "./http_stuff.h"
 using namespace std;
 using namespace nlohmann;
+
+bool SafeMove(void) {
+  cout << "SafeMove invoked";
+  return true;
+}
+
 int main(void) {
   httplib::Server svr;
   svr.Get("/", [](const auto &, auto &res) {
@@ -24,6 +30,7 @@ int main(void) {
     const json data = json::parse(req.body);
     cout << data;
     cout << "\n\n";
+    bool var = SafeMove();
     //You can get the "you" property like this:
     //data["you"];
     //Almost alike python dictionary parsing, but with a semicolon at the end of each line.
