@@ -6,23 +6,34 @@
 using namespace std; // the namespace which includes 'standard' c++ functions such as cout
 using namespace nlohmann;
 
-bool SafeMove(json data, int index) {
+struct Head {
+    int x = 0;
+    int y = 0;
+};
+
+bool SafeMove(json data, struct Head h, int index) {
+  int next_x = h.x;
+  int next_y = h.y;
+
   cout << "SafeMove invoked";
   cout << "\n\n";
   cout << data["you"];
   cout << "\n\n";
 
-  bool safety;
-
-  if (index == 1) {
-    safety = true;
-  } else if (index == 3){
-    safety = true;
+  if (index == 0) {
+    ++next_y;
+  } else  if (index == 1) {
+    --next_y;
+  } else if (index == 2){
+    ++next_x;
   } else {
-    safety = false;
+    --next_x;
   }
 
-  return safety;
+  if (next_x < 0 || next_x == data["board"]["width"] || next_y < 0 || next_y == data["board"]["height"]) {
+    return false;
+  }
+  return true;
 }
 
 int main(void) {
@@ -42,8 +53,13 @@ int main(void) {
   });
   svr.Post("/move", [](auto &req, auto &res){
     const json data = json::parse(req.body);
+    struct Head h;
+    h.x = data["you"][0][0];
+    h.y = data["you"][0][1];
+
     cout << data;
     cout << "\n\n";
+    
     
     //You can get the "you" property like this:
     //data["you"];
@@ -55,7 +71,7 @@ int main(void) {
     std::vector<string> moves {"up", "down", "left", "right"};
 
     int index = rand() % 4;
-    while (SafeMove(data, index) == false) {
+    while (SafeMove(data, h, index) == false) {
       index = rand() % 4;
     }
     res.set_content("{\"move\": \"" + moves[index] + "\"}", "text/plain");
