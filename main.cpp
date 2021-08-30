@@ -6,33 +6,38 @@
 using namespace std; // the namespace which includes 'standard' c++ functions such as cout
 using namespace nlohmann;
 
+// Battlesnake Testing Guide:
+// Stop & Rerun replit, waiting for snake info to appear on top-right. Then refresh game.
+
 struct Head {
     int x = 0;
     int y = 0;
 };
 
-bool SafeMove(json data, struct Head h, int index) {
+bool SafeMove(json data, Head h, int index) {
   int next_x = h.x;
   int next_y = h.y;
-
-  cout << "SafeMove invoked";
-  cout << "\n\n";
-  cout << data["you"];
-  cout << "\n\n";
 
   if (index == 0) {
     ++next_y;
   } else  if (index == 1) {
     --next_y;
   } else if (index == 2){
-    ++next_x;
-  } else {
     --next_x;
+  } else {
+    ++next_x;
   }
 
-  if (next_x < 0 || next_x == data["board"]["width"] || next_y < 0 || next_y == data["board"]["height"]) {
+  cout << "Next x: " << next_x << " Next y: " << next_y << "\n\n";
+
+  if ( next_x < 0 || next_x == data["board"]["width"]
+  || next_y < 0  || next_y == data["board"]["height"]) {
+    return false;
+  } else if (next_x == data["you"]["body"][1]["x"] && next_y == data["you"]["body"][1]["y"]) {
     return false;
   }
+  cout << "Neck x: " << data["you"]["body"][1]["x"] << " Neck y: " << data["you"]["body"][1]["y"] << "\n\n";
+
   return true;
 }
 
@@ -53,14 +58,14 @@ int main(void) {
   });
   svr.Post("/move", [](auto &req, auto &res){
     const json data = json::parse(req.body);
-    struct Head h;
-    h.x = data["you"][0][0];
-    h.y = data["you"][0][1];
 
-    cout << data;
-    cout << "\n\n";
-    
-    
+    cout << "START OF MOVE #: " << data["turn"] << "\n\n";    
+    cout << "DATA: " << data << "\n\n";
+
+    Head h;
+    h.x = data["you"]["head"]["x"];
+    h.y = data["you"]["head"]["y"];
+
     //You can get the "you" property like this:
     //data["you"];
     //Almost alike python dictionary parsing, but with a semicolon at the end of each line.
@@ -71,9 +76,13 @@ int main(void) {
     std::vector<string> moves {"up", "down", "left", "right"};
 
     int index = rand() % 4;
-    while (SafeMove(data, h, index) == false) {
+    cout << "Is the move " << moves[index] << " safe? " << SafeMove(data, h, index) << "\n\n";
+    if (SafeMove(data, h, index) == false) {
       index = rand() % 4;
     }
+
+    cout << "Move selected: " << moves[index] << "\n\n";
+
     res.set_content("{\"move\": \"" + moves[index] + "\"}", "text/plain");
   });
   svr.listen("0.0.0.0", 8080);
