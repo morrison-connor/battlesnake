@@ -3,13 +3,64 @@
 #include <iostream>
 #include "./json.hpp"
 #include "./http_stuff.h"
-using namespace std;
+using namespace std; // the namespace which includes 'standard' c++ functions such as cout
 using namespace nlohmann;
+
+// Battlesnake Testing Guide:
+// Stop & Rerun replit, waiting for snake info to appear on top-right. Then refresh game.
+
+struct Head {
+    int x = 0;
+    int y = 0;
+};
+
+bool SafeMove(json data, Head h, int index) {
+  int next_x = h.x;
+  int next_y = h.y;
+
+  if (index == 0) {
+    ++next_y;
+  } else  if (index == 1) {
+    --next_y;
+  } else if (index == 2){
+    --next_x;
+  } else {
+    ++next_x;
+  }
+
+  cout << "Next x: " << next_x << " Next y: " << next_y << "\n\n";
+
+  if ( next_x < 0 || next_x == data["board"]["width"]
+  || next_y < 0  || next_y == data["board"]["height"]) {
+    return false;
+  }
+
+  cout << "Snake Length" << data["you"]["body"].size() << "\n\n";
+
+  for (int segment = 0; segment < data["you"]["body"].size(); segment++) {
+    if (next_x == data["you"]["body"][segment]["x"] && next_y == data["you"]["body"][segment]["y"]) {
+      return false;
+    } else {
+      continue;
+    }
+  }
+
+  for (int segment = 0; segment < data["you"]["body"].size(); segment++) {
+    if (next_x == data["you"]["body"][segment]["x"] && next_y == data["you"]["body"][segment]["y"]) {
+      return false;
+    } else {
+      continue;
+    }
+  }
+
+  return true;
+}
+
 int main(void) {
   httplib::Server svr;
   svr.Get("/", [](const auto &, auto &res) {
     string head = "bendr";
-    string tail = "mouse";
+    string tail = "rbc-necktie";
     string author = "Connor-Morrison";
     string color = "#a676c2";
     res.set_content("{\"apiversion\":\"1\", \"head\":\"" + head + "\", \"tail\":\"" + tail + "\", \"color\":\"" + color + "\", " + "\"author\":\"" + author + "\"}", "application/json");
@@ -22,16 +73,33 @@ int main(void) {
   });
   svr.Post("/move", [](auto &req, auto &res){
     const json data = json::parse(req.body);
-    cout << data;
-    cout << "\n\n";
+
+    cout << "START OF MOVE #: " << data["turn"] << "\n\n";    
+    cout << "DATA: " << data << "\n\n";
+
+    Head h;
+    h.x = data["you"]["head"]["x"];
+    h.y = data["you"]["head"]["y"];
+
     //You can get the "you" property like this:
     //data["you"];
     //Almost alike python dictionary parsing, but with a semicolon at the end of each line.
     //You might need to make some structs to store some data in a variable
     //Example:
     //you_struct you = data["you"];
-    string moves[4] = {"up", "down", "left", "right"};
+
+    string moves [4] = {"up", "down", "left", "right"};
+
+    std::vector<string> safeMoves {"up", "down", "left", "right"};
+
     int index = rand() % 4;
+    cout << "Is the move " << safeMoves[index] << " safe? " << SafeMove(data, h, index) << "\n\n";
+    if (SafeMove(data, h, index) == false) {
+      index = rand() % 4;
+    }
+
+    cout << "Move selected: " << safeMoves[index] << "\n\n";
+
     res.set_content("{\"move\": \"" + moves[index] + "\"}", "text/plain");
   });
   svr.listen("0.0.0.0", 8080);
