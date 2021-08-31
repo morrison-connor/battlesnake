@@ -33,10 +33,25 @@ bool SafeMove(json data, Head h, int index) {
   if ( next_x < 0 || next_x == data["board"]["width"]
   || next_y < 0  || next_y == data["board"]["height"]) {
     return false;
-  } else if (next_x == data["you"]["body"][1]["x"] && next_y == data["you"]["body"][1]["y"]) {
-    return false;
   }
-  cout << "Neck x: " << data["you"]["body"][1]["x"] << " Neck y: " << data["you"]["body"][1]["y"] << "\n\n";
+
+  cout << "Snake Length" << data["you"]["body"].size() << "\n\n";
+
+  for (int segment = 0; segment < data["you"]["body"].size(); segment++) {
+    if (next_x == data["you"]["body"][segment]["x"] && next_y == data["you"]["body"][segment]["y"]) {
+      return false;
+    } else {
+      continue;
+    }
+  }
+
+  for (int segment = 0; segment < data["you"]["body"].size(); segment++) {
+    if (next_x == data["you"]["body"][segment]["x"] && next_y == data["you"]["body"][segment]["y"]) {
+      return false;
+    } else {
+      continue;
+    }
+  }
 
   return true;
 }
@@ -72,16 +87,18 @@ int main(void) {
     //You might need to make some structs to store some data in a variable
     //Example:
     //you_struct you = data["you"];
-  
-    std::vector<string> moves {"up", "down", "left", "right"};
+
+    string moves [4] = {"up", "down", "left", "right"};
+
+    std::vector<string> safeMoves {"up", "down", "left", "right"};
 
     int index = rand() % 4;
-    cout << "Is the move " << moves[index] << " safe? " << SafeMove(data, h, index) << "\n\n";
+    cout << "Is the move " << safeMoves[index] << " safe? " << SafeMove(data, h, index) << "\n\n";
     if (SafeMove(data, h, index) == false) {
       index = rand() % 4;
     }
 
-    cout << "Move selected: " << moves[index] << "\n\n";
+    cout << "Move selected: " << safeMoves[index] << "\n\n";
 
     res.set_content("{\"move\": \"" + moves[index] + "\"}", "text/plain");
   });
