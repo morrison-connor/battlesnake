@@ -14,9 +14,9 @@ struct Head {
     int y = 0;
 };
 
-bool SafeMove(json data, Head h, int index) {
-  int next_x = h.x;
-  int next_y = h.y;
+bool SafeMove(json data, int index) {
+  int next_x = data["you"]["head"]["x"];
+  int next_y = data["you"]["head"]["y"];
 
   if (index == 0) {
     ++next_y;
@@ -35,7 +35,7 @@ bool SafeMove(json data, Head h, int index) {
     return false;
   }
 
-  cout << "Snake Length" << data["you"]["body"].size() << "\n\n";
+  cout << "Snake Length: " << data["you"]["body"].size() << "\n\n";
 
   for (int segment = 0; segment < data["you"]["body"].size(); segment++) {
     if (next_x == data["you"]["body"][segment]["x"] && next_y == data["you"]["body"][segment]["y"]) {
@@ -56,6 +56,20 @@ bool SafeMove(json data, Head h, int index) {
   return true;
 }
 
+std::vector<string> CheckMoves(json data, string moves[4]) {
+  cout << "CheckMoves invoked" << "\n\n";
+  std::vector<string> safeMoves = {};
+
+  for (int i = 0; i < 4; i++) {
+      cout << "Is the move " << moves[i] << "-" << i<< " safe? " << "\n\n";
+    if (SafeMove(data, i) == true) {
+      cout << "Move is safe." << "\n\n";
+      safeMoves.push_back(moves[i]);
+    } 
+  }
+  return safeMoves;
+}
+
 int main(void) {
   httplib::Server svr;
   svr.Get("/", [](const auto &, auto &res) {
@@ -73,14 +87,6 @@ int main(void) {
   });
   svr.Post("/move", [](auto &req, auto &res){
     const json data = json::parse(req.body);
-
-    cout << "START OF MOVE #: " << data["turn"] << "\n\n";    
-    cout << "DATA: " << data << "\n\n";
-
-    Head h;
-    h.x = data["you"]["head"]["x"];
-    h.y = data["you"]["head"]["y"];
-
     //You can get the "you" property like this:
     //data["you"];
     //Almost alike python dictionary parsing, but with a semicolon at the end of each line.
@@ -88,19 +94,18 @@ int main(void) {
     //Example:
     //you_struct you = data["you"];
 
-    string moves [4] = {"up", "down", "left", "right"};
+    cout << "START OF MOVE #: " << data["turn"] << "\n\n";    
+    cout << "DATA: " << data << "\n\n";
 
-    std::vector<string> safeMoves {"up", "down", "left", "right"};
+    string moves[4] = {"up", "down", "left", "right"};
 
-    int index = rand() % 4;
-    cout << "Is the move " << safeMoves[index] << " safe? " << SafeMove(data, h, index) << "\n\n";
-    if (SafeMove(data, h, index) == false) {
-      index = rand() % 4;
-    }
+    std::vector<string> safeMoves = CheckMoves(data, moves);
+    
+    int index = rand() % safeMoves.size();
 
     cout << "Move selected: " << safeMoves[index] << "\n\n";
 
-    res.set_content("{\"move\": \"" + moves[index] + "\"}", "text/plain");
+    res.set_content("{\"move\": \"" + safeMoves[index] + "\"}", "text/plain");
   });
   svr.listen("0.0.0.0", 8080);
   cout << "Server started";
