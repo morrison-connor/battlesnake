@@ -52,6 +52,7 @@ bool SafeMove(json data, int index) {
       continue;
     }
   }
+
   return true;
 }
 
@@ -67,13 +68,6 @@ std::vector<string> CheckMoves(json data, string moves[4]) {
     } 
   }
   return safeMoves;
-}
-
-string ChooseMove(json data, string moves[4]) {
-  std::vector<string> safeMoves = CheckMoves(data, moves);
-  string move = safeMoves.back(); // have the best move be the last in the vector
-  cout << "Move selected: " << move << "\n\n";
-  return move;
 }
 
 int main(void) {
@@ -92,25 +86,26 @@ int main(void) {
     res.set_content("ok", "text/plain");
   });
   svr.Post("/move", [](auto &req, auto &res){
-    // DECLARE VARIABLES
     const json data = json::parse(req.body);
-    string moves[4] = {"up", "down", "left", "right"};
-
-    // ACCESSING DATA
     //You can get the "you" property like this:
     //data["you"];
     //Almost alike python dictionary parsing, but with a semicolon at the end of each line.
     //You might need to make some structs to store some data in a variable
     //Example:
     //you_struct you = data["you"];
+
     cout << "START OF MOVE #: " << data["turn"] << "\n\n";    
     cout << "DATA: " << data << "\n\n";
 
-    // CHOOSE A MOVE
-    string chosenMove = ChooseMove(data, moves);
+    string moves[4] = {"up", "down", "left", "right"};
 
-    // RETURN MOVE CHOICE
-    res.set_content("{\"move\": \"" + chosenMove + "\"}", "text/plain");
+    std::vector<string> safeMoves = CheckMoves(data, moves);
+    
+    int index = rand() % safeMoves.size();
+
+    cout << "Move selected: " << safeMoves[index] << "\n\n";
+
+    res.set_content("{\"move\": \"" + safeMoves[index] + "\"}", "text/plain");
   });
   svr.listen("0.0.0.0", 8080);
   cout << "Server started";
