@@ -52,6 +52,7 @@ bool SafeMove(json data, int index) {
       continue;
     }
   }
+
   return true;
 }
 
@@ -69,9 +70,9 @@ std::vector<string> CheckMoves(json data, string moves[4]) {
   return safeMoves;
 }
 
-string ChooseMove(json data, string moves[4]) {
-  std::vector<string> safeMoves = CheckMoves(data, moves);
-  string move = safeMoves.back(); // have the best move be the last in the vector
+string ChooseMove(json data, std::vector<string> safeMoves) {
+  int index = rand() % safeMoves.size();
+  string move = safeMoves[index];
   cout << "Move selected: " << move << "\n\n";
   return move;
 }
@@ -106,8 +107,11 @@ int main(void) {
     cout << "START OF MOVE #: " << data["turn"] << "\n\n";    
     cout << "DATA: " << data << "\n\n";
 
+    // CHECK SAFE MOVES
+    std::vector<string> safeMoves = CheckMoves(data, moves);
+
     // CHOOSE A MOVE
-    string chosenMove = ChooseMove(data, moves);
+    string chosenMove = ChooseMove(data, safeMoves);
 
     // RETURN MOVE CHOICE
     res.set_content("{\"move\": \"" + chosenMove + "\"}", "text/plain");
