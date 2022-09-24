@@ -70,8 +70,6 @@ std::vector<string> CheckMoves(json data, string moves[4]) {
   return safeMoves;
 }
 
-<<<<<<< HEAD
-=======
 string ChooseMove(json data, std::vector<string> safeMoves) {
   int index = rand() % safeMoves.size();
   string move = safeMoves[index];
@@ -79,7 +77,6 @@ string ChooseMove(json data, std::vector<string> safeMoves) {
   return move;
 }
 
->>>>>>> parent of d4b879a (Moved CheckMoves call into ChooseMove() so that it can be called recursively in the future)
 int main(void) {
   httplib::Server svr;
   svr.Get("/", [](const auto &, auto &res) {
@@ -107,23 +104,15 @@ int main(void) {
     cout << "START OF MOVE #: " << data["turn"] << "\n\n";    
     cout << "DATA: " << data << "\n\n";
 
-<<<<<<< HEAD
     string moves[4] = {"up", "down", "left", "right"};
-
-    std::vector<string> safeMoves = CheckMoves(data, moves);
     
-    int index = rand() % safeMoves.size();
-
-    cout << "Move selected: " << safeMoves[index] << "\n\n";
-=======
     // CHECK SAFE MOVES
     std::vector<string> safeMoves = CheckMoves(data, moves);
 
     // CHOOSE A MOVE
     string chosenMove = ChooseMove(data, safeMoves);
->>>>>>> parent of d4b879a (Moved CheckMoves call into ChooseMove() so that it can be called recursively in the future)
 
-    res.set_content("{\"move\": \"" + safeMoves[index] + "\"}", "text/plain");
+    res.set_content("{\"move\": \"" + chosenMove + "\"}", "text/plain");
   });
   svr.listen("0.0.0.0", 8080);
   cout << "Server started";
