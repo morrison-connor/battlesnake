@@ -93,27 +93,25 @@ int main(void) {
     res.set_content("ok", "text/plain");
   });
   svr.Post("/move", [](auto &req, auto &res){
-    // DECLARE VARIABLES
     const json data = json::parse(req.body);
-    string moves[4] = {"up", "down", "left", "right"};
-
-    // ACCESSING DATA
     //You can get the "you" property like this:
     //data["you"];
     //Almost alike python dictionary parsing, but with a semicolon at the end of each line.
     //You might need to make some structs to store some data in a variable
     //Example:
     //you_struct you = data["you"];
+
     cout << "START OF MOVE #: " << data["turn"] << "\n\n";    
     cout << "DATA: " << data << "\n\n";
 
+    string moves[4] = {"up", "down", "left", "right"};
+    
     // CHECK SAFE MOVES
     std::vector<string> safeMoves = CheckMoves(data, moves);
 
     // CHOOSE A MOVE
     string chosenMove = ChooseMove(data, safeMoves);
 
-    // RETURN MOVE CHOICE
     res.set_content("{\"move\": \"" + chosenMove + "\"}", "text/plain");
   });
   svr.listen("0.0.0.0", 8080);
