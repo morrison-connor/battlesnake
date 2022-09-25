@@ -37,19 +37,14 @@ bool SafeMove(json data, int index) {
 
   cout << "Snake Length: " << data["you"]["body"].size() << "\n\n";
 
-  for (int segment = 0; segment < data["you"]["body"].size(); segment++) {
-    if (next_x == data["you"]["body"][segment]["x"] && next_y == data["you"]["body"][segment]["y"]) {
-      return false;
-    } else {
-      continue;
-    }
-  }
-
-  for (int segment = 0; segment < data["you"]["body"].size(); segment++) {
-    if (next_x == data["you"]["body"][segment]["x"] && next_y == data["you"]["body"][segment]["y"]) {
-      return false;
-    } else {
-      continue;
+  // Check for collisions against snakes on board
+  for (int snake = 0; snake < data["board"]["snakes"].size(); snake++) {
+    for (int segment = 0; segment < data["board"][snake]["body"].size(); segment++) {
+      if (next_x == data["board"][snake]["body"][segment]["x"] && next_y == data["board"][snake]["body"][segment]["y"]) {
+        return false;
+      } else {
+        continue;
+      }
     }
   }
 
