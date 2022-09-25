@@ -14,7 +14,7 @@ struct Head {
     int y = 0;
 };
 
-bool SafeMove(json data, int index) {
+bool safe_move(json data, int index) {
   int next_x = data["you"]["head"]["x"];
   int next_y = data["you"]["head"]["y"];
 
@@ -39,8 +39,8 @@ bool SafeMove(json data, int index) {
 
   // Check for collisions against snakes on board
   for (int snake = 0; snake < data["board"]["snakes"].size(); snake++) {
-    for (int segment = 0; segment < data["board"][snake]["body"].size(); segment++) {
-      if (next_x == data["board"][snake]["body"][segment]["x"] && next_y == data["board"][snake]["body"][segment]["y"]) {
+    for (int segment = 0; segment < data["board"]["snakes"][snake]["body"].size(); segment++) {
+      if (next_x == data["board"]["snakes"][snake]["body"][segment]["x"] && next_y == data["board"]["snakes"][snake]["body"][segment]["y"]) {
         return false;
       } else {
         continue;
@@ -51,13 +51,13 @@ bool SafeMove(json data, int index) {
   return true;
 }
 
-std::vector<string> CheckMoves(json data, string moves[4]) {
-  cout << "CheckMoves invoked" << "\n\n";
+std::vector<string> check_moves(json data, string moves[4]) {
+  cout << "check_moves invoked" << "\n\n";
   std::vector<string> safeMoves = {};
 
   for (int i = 0; i < 4; i++) {
       cout << "Is the move " << moves[i] << "-" << i<< " safe? " << "\n\n";
-    if (SafeMove(data, i) == true) {
+    if (safe_move(data, i) == true) {
       cout << "Move is safe." << "\n\n";
       safeMoves.push_back(moves[i]);
     } 
@@ -65,14 +65,20 @@ std::vector<string> CheckMoves(json data, string moves[4]) {
   return safeMoves;
 }
 
-string ChooseMove(json data, std::vector<string> safeMoves) {
+string choose_move(json data, std::vector<string> safeMoves) {
+
+  // get_closest_food
+
   int index = rand() % safeMoves.size();
   string move = safeMoves[index];
   cout << "Move selected: " << move << "\n\n";
   return move;
 }
 
+
+
 int main(void) {
+  cout << "Ready for battle!" << "\n\n";
   httplib::Server svr;
   svr.Get("/", [](const auto &, auto &res) {
     string head = "bendr";
@@ -102,10 +108,10 @@ int main(void) {
     string moves[4] = {"up", "down", "left", "right"};
     
     // CHECK SAFE MOVES
-    std::vector<string> safeMoves = CheckMoves(data, moves);
+    std::vector<string> safeMoves = check_moves(data, moves);
 
     // CHOOSE A MOVE
-    string chosenMove = ChooseMove(data, safeMoves);
+    string chosenMove = choose_move(data, safeMoves);
 
     res.set_content("{\"move\": \"" + chosenMove + "\"}", "text/plain");
   });
