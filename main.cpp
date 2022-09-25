@@ -53,24 +53,31 @@ bool safe_move(json data, int index) {
 
 std::vector<string> check_moves(json data, string moves[4]) {
   cout << "check_moves invoked" << "\n\n";
-  std::vector<string> safeMoves = {};
+  std::vector<string> safe_moves = {};
 
   for (int i = 0; i < 4; i++) {
       cout << "Is the move " << moves[i] << "-" << i<< " safe? " << "\n\n";
     if (safe_move(data, i) == true) {
       cout << "Move is safe." << "\n\n";
-      safeMoves.push_back(moves[i]);
+      safe_moves.push_back(moves[i]);
     } 
   }
-  return safeMoves;
+  return safe_moves;
 }
 
-string choose_move(json data, std::vector<string> safeMoves) {
+string choose_move(json data, std::vector<string> safe_moves) {
 
-  // get_closest_food
+  // get_closest_food_coordinates
+  chosen_moves = 
+  /* logic tree
 
-  int index = rand() % safeMoves.size();
-  string move = safeMoves[index];
+  if food_x < head_x
+    then
+  else 
+  */
+
+  int index = rand() % safe_moves.size();
+  string move = safe_moves[index];
   cout << "Move selected: " << move << "\n\n";
   return move;
 }
@@ -108,10 +115,10 @@ int main(void) {
     string moves[4] = {"up", "down", "left", "right"};
     
     // CHECK SAFE MOVES
-    std::vector<string> safeMoves = check_moves(data, moves);
+    std::vector<string> safe_moves = check_moves(data, moves);
 
     // CHOOSE A MOVE
-    string chosenMove = choose_move(data, safeMoves);
+    string chosenMove = choose_move(data, safe_moves);
 
     res.set_content("{\"move\": \"" + chosenMove + "\"}", "text/plain");
   });
